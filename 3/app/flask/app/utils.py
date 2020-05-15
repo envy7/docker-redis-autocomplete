@@ -4,7 +4,7 @@ from flask import jsonify
 import re
 
 
-def redis_healthcheck():
+def redis_healthcheck() -> bool:
     try:
         if redis_db.ping():
             return True
@@ -55,7 +55,7 @@ def redis_autocomplete_word(query):
         return False
 
 
-def validate_input(endpoint, action):
+def validate_input(endpoint, action) -> bool:
     if re.match(rf"\b{action}\=([a-z]+)$", endpoint):
         return True
     else:
