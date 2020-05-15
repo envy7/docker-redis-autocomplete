@@ -1,10 +1,12 @@
 version: '3.2'
 services:
   redis:
-    image: redis:6.0.1-alpine
+    image: bitnami/redis:6.0.1
     container_name: redis
+    environment:
+      - REDIS_PASSWORD=WbeSOSvsvhonorzT512gy6Nc7qi9Twah
     ports:
-      - 6378:6379
+      - 6379:6379
 
   flask:
     build: ./flask
@@ -15,6 +17,7 @@ services:
       - REDIS_PORT=6379
       - REDIS_DATABASE=0
       - REDIS_ZSET=autocomplete
+      - REDIS_PASS=WbeSOSvsvhonorzT512gy6Nc7qi9Twah
     expose:
       - 8080
 

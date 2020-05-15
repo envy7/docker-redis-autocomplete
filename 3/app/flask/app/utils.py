@@ -23,10 +23,10 @@ def redis_add_word(word) -> bool:
 
         word += '*'
         redis_db.zadd(app.config['REDIS_ZSET'], {word: 0})
-        app.logger.info("Added word")
+        app.logger.info(f'Added the word {word[:-1]} to dictionary')
         return True
     except ConnectionError as err:
-        app.logger.error(err)
+        app.logger.error(f'Failed adding word "{word}", to dictionary. {err}')
         return False
 
 
@@ -43,6 +43,7 @@ def redis_autocomplete_word(query):
         if not start:
             return(jsonify(response))
 
+        app.logger.info(f'Fetching words for query {query} from position {start} in dictionary')
         while traverse:
             redis_range = redis_db.zrange(app.config['REDIS_ZSET'], start, start+batch_size-1)
             start += batch_size
@@ -61,7 +62,7 @@ def redis_autocomplete_word(query):
 
         return(jsonify(response))
     except ConnectionError as err:
-        app.logger.error(err)
+        app.logger.error(f'Failed autocomplete for query "{query}" in dictionary. {err}')
         return False
 
 
