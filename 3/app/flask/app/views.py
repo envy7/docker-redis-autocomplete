@@ -6,16 +6,14 @@ from app.utils import redis_healthcheck, redis_add_word, redis_autocomplete_word
 @app.route('/health', methods=['GET'])
 def health_check():
     """
-    Route to do check health of application by checking connectivity to Redis
-    If redis responds to PING with PONG from application, 
-    then application healthy to recieve requests
+    Route to do check health of application
     """
 
     response = redis_healthcheck()
     if response:
-        return 'Healthy'
+        return 'Healthy', 200
     else:
-        return 'Unhealthy'
+        return 'Unhealthy'. 503
 
 
 @app.route('/add_word/<section>', methods=['GET'])
@@ -27,9 +25,9 @@ def add_word(section):
     ---
     parameters:
         - name: section (word=<your-word>)
-        - type: string
-        - required: true
-        - description: word to add to redis dictionary
+          type: string
+          required: true
+          description: word to add to redis dictionary
     responses:
         200:
             description: Success fully added word to dictionary
@@ -59,9 +57,9 @@ def autocomplete(section):
     ---
     parameters:
         - name: section (query=<your-word>)
-        - type: string
-        - required: true
-        - description: prefix to query redis for autocompletion
+          type: string
+          required: true
+          description: prefix to query redis for autocompletion
     responses:
         - 200:
             description: Either empty list of words, or list of autocompleted words are returned
