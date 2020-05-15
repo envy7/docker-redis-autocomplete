@@ -1,4 +1,3 @@
-from app import views
 from flask import Flask
 from config import Config
 import redis
@@ -11,3 +10,5 @@ redis_db = redis.StrictRedis(
     db=app.config['REDIS_DATABASE'],
     decode_responses=True
 )
+
+from app import views
