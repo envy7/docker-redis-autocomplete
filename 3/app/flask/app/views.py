@@ -68,8 +68,7 @@ def autocomplete(section):
         - 400:
             description: Invalid request format i.e not of form (/query=<your-word>)
         - 503:
-            description: Issue with redis backend, list of words not retrieved
-        
+            description: Issue with redis backend, list of words not retrieved    
     """
 
     if validate_input(section, 'query'):
