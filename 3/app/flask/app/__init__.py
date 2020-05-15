@@ -3,6 +3,7 @@ from config import Config
 from logging.config import dictConfig
 import redis
 
+
 LOGGING_CONFIG = { 
     'version': 1,
     'formatters': { 
