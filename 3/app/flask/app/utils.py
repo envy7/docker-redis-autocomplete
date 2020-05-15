@@ -15,13 +15,15 @@ def redis_healthcheck() -> bool:
         return False
 
 
-def redis_add_word(word):
+def redis_add_word(word) -> bool:
     try:
+        word = word.lower()
         for index in range(1, len(word)):
             redis_db.zadd(app.config['REDIS_ZSET'], {word[:index]: 0})
 
         word += '*'
         redis_db.zadd(app.config['REDIS_ZSET'], {word: 0})
+        app.logger.info("Added word")
         return True
     except ConnectionError as err:
         app.logger.error(err)
@@ -32,22 +34,30 @@ def redis_autocomplete_word(query):
     try:
         results = []
         response = {'words': results}
+        batch_size = 50
+        traverse = True
 
+        query = query.lower()
         start = redis_db.zrank(app.config['REDIS_ZSET'], query)
 
         if not start:
             return(jsonify(response))
 
-        redis_range = redis_db.zrange(app.config['REDIS_ZSET'], start, -1)
+        while traverse:
+            redis_range = redis_db.zrange(app.config['REDIS_ZSET'], start, start+batch_size-1)
+            start += batch_size
 
-        # Todo: fetch entries in batches in a while loop
-        for entry in redis_range:
-            minlen = min(len(entry), len(query))
-            if entry[:minlen] != query[:minlen]:
+            if not redis_range:
                 break
+            
+            for entry in redis_range:
+                minlen = min(len(entry), len(query))
+                if entry[:minlen] != query[:minlen]:
+                    traverse = False
+                    break
 
-            if entry[-1:] == '*':
-                results.append(entry[:-1])
+                if entry[-1:] == '*':
+                    results.append(entry[:-1])
 
         return(jsonify(response))
     except ConnectionError as err:
@@ -56,7 +66,7 @@ def redis_autocomplete_word(query):
 
 
 def validate_input(endpoint, action) -> bool:
-    if re.match(rf"\b{action}\=([a-z]+)$", endpoint):
+    if re.match(rf"\b{action}\=([a-zA-Z]+)$", endpoint):
         return True
     else:
         return False
