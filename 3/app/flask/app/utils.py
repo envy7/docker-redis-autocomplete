@@ -7,12 +7,12 @@ import re
 def redis_healthcheck():
     try:
         if redis_db.ping():
-            return "Healthy"
+            return True
         else:
-            return "Unhealthy"
+            return False
     except ConnectionError as err:
         app.logger.error(err)
-        return "Unhealthy"
+        return False
 
 
 def redis_add_word(word):
@@ -22,21 +22,23 @@ def redis_add_word(word):
 
         word += '*'
         redis_db.zadd(app.config['REDIS_ZSET'], {word: 0})
-        return 'Successfully inserted word to dictionary'
+        return True
     except ConnectionError as err:
         app.logger.error(err)
-        return 'Word was not added successfully, please try again'
+        return False
 
 
 def redis_autocomplete_word(query):
     try:
+        results = []
+        response = {'words': results}
+
         start = redis_db.zrank(app.config['REDIS_ZSET'], query)
 
         if not start:
-            return(jsonify({}))
+            return(jsonify(response))
 
         redis_range = redis_db.zrange(app.config['REDIS_ZSET'], start, -1)
-        results = []
 
         # Todo: fetch entries in batches in a while loop
         for entry in redis_range:
@@ -47,10 +49,10 @@ def redis_autocomplete_word(query):
             if entry[-1:] == '*':
                 results.append(entry[:-1])
 
-        return(jsonify({'words': results}))
-    except:
+        return(jsonify(response))
+    except ConnectionError as err:
         app.logger.error(err)
-        return 'Unable to autocomplete, please try again'
+        return False
 
 
 def validate_input(endpoint, action):
