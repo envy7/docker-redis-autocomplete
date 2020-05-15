@@ -7,14 +7,19 @@ COPY requirements.txt /tmp/
 # Install the dependencies
 RUN pip install -r /tmp/requirements.txt
 
+# Create non root user
 RUN useradd --create-home appuser
 
+# Create home directory for non root user
 RUN mkdir /home/appuser/app
 
+# Switch to non root user
 USER appuser
 
+# Copy application code
 ADD . /home/appuser/app
 
+# Switch working directory
 WORKDIR /home/appuser/app
 
 ENTRYPOINT ["uwsgi"]
