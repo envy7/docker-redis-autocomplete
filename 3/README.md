@@ -23,7 +23,7 @@ Commands are relative to the place the README.md file is present
 
  1. Add words to redis database
     ```
-	  curl -X POST -k https://localhost/add_word/word=foosball
+	curl -X POST -k https://localhost/add_word/word=foosball
     ```
     Above api will add the word foosball to redis
      
