@@ -14,7 +14,7 @@ def health_check():
     if response:
         return 'Healthy', 200
     else:
-        return 'Unhealthy', 200
+        return 'Unhealthy', 503
 
 
 @app.route('/add_word/<section>', methods=['POST'])
