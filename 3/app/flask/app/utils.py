@@ -67,7 +67,7 @@ def redis_autocomplete_word(query):
     Batch size needs to be tweaked according to the mtu (i.e maximum data that can be retrieved from redis in one request)
     Search stops when the prefix and the words in zrange no longer match
 
-    e.g in a zset with words foo, foobar and go added to it [f, fo, foo*, foob, fooba, foobar*, g, go*] 
+    e.g in a zset with words foo, foobar and go added to it [f, fo, foo, foo*, foob, fooba, foobar*, g, go*] 
     if we need to find words with prefix fo
     search will start from fo and end at g, returning foo and foobar as possible results since they have * againts them
     ---
@@ -107,7 +107,7 @@ def redis_autocomplete_word(query):
                     traverse = False
                     break
 
-                if entry[-1:] == '*':
+                if entry[-1:] == '*' and entry[:-1] != query:
                     results.append(entry[:-1])
 
         return(jsonify(response))
@@ -137,7 +137,7 @@ def validate_input(endpoint, key) -> bool:
             description: Indicates if the endpoint is of the proper format or not
     """
 
-    
+
     if re.match(rf"\b{key}\=([a-zA-Z]+)$", endpoint):
         return True
     else:
