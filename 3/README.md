@@ -19,7 +19,9 @@ Commands are relative to the place the README.md file is present
  2. $ docker-compose build
  3. $ docker-compose up -d
 
- The docker compose file will expose the nginx server and redis sever on port 443 and 6379 respectively by default. If these ports are already open on the host by other applications, they can be changed to bind on available ports on the host.
+ The docker compose file will expose the nginx server and redis sever on port 443 and 6379 respectively by default. 
+ If these ports are already open on the host by other applications, they can be changed in the docker compose file to bind on other available ports on the host. This can be done by modifying the port mapping in the respective service definitions in the compose file. 
+ The first port in the mapping refers to the port which is opened on the host.
 
 ### Example API Usage
 
