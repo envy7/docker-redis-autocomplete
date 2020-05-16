@@ -7,6 +7,7 @@ from app.utils import redis_healthcheck, redis_add_word, redis_autocomplete_word
 def health_check():
     """
     Route to do check health of application
+    Call this API to check if application is able to connect to redisdo
     """
 
     response = redis_healthcheck()
@@ -16,7 +17,7 @@ def health_check():
         return 'Unhealthy', 503
 
 
-@app.route('/add_word/<section>', methods=['GET'])
+@app.route('/add_word/<section>', methods=['POST'])
 def add_word(section):
     """
     Route to add words to redis dictionary
@@ -41,9 +42,9 @@ def add_word(section):
         word = section.split('=')[1]
         response = redis_add_word(word)
         if response:
-            return(jsonify({'success': 'word inserted to dictionary'})), 200
+            return(jsonify({'success': response})), 200
         else:
-            return 'Word was not added successfully, please try again', 503
+            return 503
     else:
         return(jsonify({'error': 'API Usage is /add_word/word=<your word>'})), 400
 
@@ -75,6 +76,6 @@ def autocomplete(section):
         if response:
             return response, 200
         else:
-            return 'Unable to autocomplete, please try again', 503
+            return 503
     else:
         return(jsonify({'error': 'API Usage is /autocomplete/query=<your word>'})), 400

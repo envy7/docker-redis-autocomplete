@@ -27,7 +27,7 @@ def redis_healthcheck() -> bool:
 
 def redis_add_word(word) -> bool:
     """
-    Adds words to redis zset, provided by user
+    Adds words provided by user to redis zset if not already present
     Word is converted to lowercase, and added with a score of 0 to the zset
     Since all words are added with same score, the zset sorts them in lexicographic order
     All substrings of the word are extracted and added
@@ -47,12 +47,16 @@ def redis_add_word(word) -> bool:
 
     try:
         word = word.lower()
+        if redis_db.zrank(app.config['REDIS_ZSET'], word):
+            app.logger.info(f'Word "{word}" already present in dictionary')
+            return True
+
         for index in range(1, len(word)):
             redis_db.zadd(app.config['REDIS_ZSET'], {word[:index]: 0})
 
         word += '*'
         redis_db.zadd(app.config['REDIS_ZSET'], {word: 0})
-        app.logger.info(f'Added the word {word[:-1]} to dictionary')
+        app.logger.info(f'Added the word "{word[:-1]}" to dictionary')
         return True
     except ConnectionError as err:
         app.logger.error(f'Failed adding word "{word}", to dictionary. {err}')
@@ -92,7 +96,7 @@ def redis_autocomplete_word(query):
         if not start:
             return(jsonify(response))
 
-        app.logger.info(f'Fetching words for query {query} from position {start} in dictionary')
+        app.logger.info(f'Fetching words for query "{query}" from position {start} in dictionary')
         while traverse:
             redis_range = redis_db.zrange(
                 app.config['REDIS_ZSET'], start, start+batch_size-1)
