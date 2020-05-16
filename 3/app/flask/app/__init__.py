@@ -4,6 +4,18 @@ from logging.config import dictConfig
 import redis
 
 
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+redis_db = redis.StrictRedis(
+    host=app.config['REDIS_HOST'],
+    port=app.config['REDIS_PORT'],
+    db=app.config['REDIS_DATABASE'],
+    password=app.config['REDIS_PASS'],
+    decode_responses=True
+)
+
 LOGGING_CONFIG = { 
     'version': 1,
     'formatters': { 
@@ -13,7 +25,7 @@ LOGGING_CONFIG = {
     },
     'handlers': { 
         'default': { 
-            'level': 'INFO',
+            'level': app.config['LOG_LEVEL'],
             'formatter': 'standard',
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stdout'
@@ -22,20 +34,10 @@ LOGGING_CONFIG = {
     'loggers': { 
         '': {
             'handlers': ['default'],
-            'level': 'INFO'
+            'level': app.config['LOG_LEVEL']
         }
     }
 }
 dictConfig(LOGGING_CONFIG)
-
-app = Flask(__name__)
-app.config.from_object(Config)
-redis_db = redis.StrictRedis(
-    host=app.config['REDIS_HOST'],
-    port=app.config['REDIS_PORT'],
-    db=app.config['REDIS_DATABASE'],
-    password=app.config['REDIS_PASS'],
-    decode_responses=True
-)
 
 from app import views
